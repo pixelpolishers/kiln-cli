@@ -1,4 +1,5 @@
-# Continuous integration: vet and test the CLI on Linux, macOS and Windows.
+# Continuous integration: vet and test the CLI on Ubuntu (Debian family),
+# Fedora (Red Hat family), macOS and Windows.
 #
 # The macOS and Windows jobs have never run: expect to fix things on the first
 # runs. That is the point; it is how Windows and macOS support gets tested.
@@ -48,4 +49,38 @@ jobs:
         run: cd kiln-cli && go vet ./...
       - name: Test
         shell: bash
+        run: cd kiln-cli && go test ./...
+
+  test-fedora:
+    # The ubuntu runner covers the Debian family; this covers the Red Hat family
+    # (Fedora is also what the author develops on). It runs in a Fedora container
+    # and installs the tools the tests that compile code need.
+    name: tests (fedora)
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Install git and the build tools
+        run: dnf install -y git gcc-c++ cmake make tcl perl-core which
+      - uses: actions/checkout@v4
+        with:
+          path: kiln-cli
+      - uses: actions/checkout@v4
+        with:
+          repository: pixelpolishers/kiln-core
+          path: kiln-core
+          token: ${{ secrets.KILN_REPO_TOKEN }}
+      - uses: actions/checkout@v4
+        with:
+          repository: pixelpolishers/kiln-schema
+          path: kiln-schema
+          token: ${{ secrets.KILN_REPO_TOKEN }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: kiln-cli/go.mod
+          cache: false
+      - name: Join the modules in a workspace
+        run: go work init ./kiln-cli ./kiln-core ./kiln-schema
+      - name: Vet
+        run: cd kiln-cli && go vet ./...
+      - name: Test
         run: cd kiln-cli && go test ./...
