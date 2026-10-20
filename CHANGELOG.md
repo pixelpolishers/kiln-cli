@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 - This changelog, and a copy of it in every release archive.
 - Prebuilt binaries for Windows on ARM (arm64) and FreeBSD (amd64).
 - Tests on Linux and Windows machines with ARM processors for every change.
+- Install scripts, `scripts/install.sh` (Linux, macOS, FreeBSD) and `scripts/install.ps1` (Windows): they pick the right archive for the system, check its SHA-256 checksum and install `kiln`. Every release carries copies with its own checksums written into them.
+- Build attestations for the files of a release, which `gh attestation verify` can check.
 
 ### Changed
 

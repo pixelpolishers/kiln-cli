@@ -19,6 +19,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write       # for the build attestations
+  attestations: write
 
 jobs:
   build:
@@ -81,11 +83,42 @@ jobs:
               tar -C "$stage" -czf "dist/kiln_${os}_${arch}.tar.gz" "$exe" LICENSE README.md CHANGELOG.md
             fi
           done
-          (cd dist && sha256sum * > SHA256SUMS && cat SHA256SUMS)
+          (cd dist && sha256sum kiln_* > SHA256SUMS)
+          # The installers. For a release they get the checksums of that release baked in,
+          # so a script can only ever install the files of its own release.
+          cp kiln-cli/scripts/install.sh kiln-cli/scripts/install.ps1 dist/
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            TAG="$GITHUB_REF_NAME" python3 - <<'PY'
+          import os
+          tag = os.environ["TAG"]
+          sums = open("dist/SHA256SUMS").read().strip()
+          sh = open("dist/install.sh").read()
+          sh = sh.replace('baked_version=""', 'baked_version="%s"' % tag, 1)
+          sh = sh.replace('baked_sums=""', 'baked_sums="%s"' % sums, 1)
+          open("dist/install.sh", "w").write(sh)
+          ps = open("dist/install.ps1").read()
+          ps = ps.replace("$bakedVersion = ''", "$bakedVersion = '%s'" % tag, 1)
+          ps = ps.replace("$bakedSums = ''", "$bakedSums = @'\n%s\n'@" % sums, 1)
+          open("dist/install.ps1", "w").write(ps)
+          PY
+          fi
+          (cd dist && sha256sum install.sh install.ps1 >> SHA256SUMS && cat SHA256SUMS)
       - name: Check that the Linux binary reports its version
         run: |
           mkdir check && tar -C check -xzf dist/kiln_linux_amd64.tar.gz
           ./check/kiln version
+      - name: Check the installers
+        run: |
+          sh -n dist/install.sh
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            grep -q "baked_version=\"$GITHUB_REF_NAME\"" dist/install.sh
+            grep -q "kiln_linux_amd64.tar.gz" dist/install.sh
+          fi
+      - name: Attest where the files came from
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/*
       - uses: actions/upload-artifact@v4
         with:
           name: kiln-binaries

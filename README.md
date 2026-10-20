@@ -24,7 +24,39 @@ target_link_libraries(app PRIVATE gabime::spdlog nlohmann::nlohmann_json)
 
 Kiln is one executable, `kiln`, with nothing else to install. It uses tools that are probably on your machine already (git, CMake, a C++ compiler); the steps for each system below start with those.
 
-> **Only a release candidate exists so far** ([v0.1.0-rc1](https://github.com/pixelpolishers/kiln-cli/releases/tag/v0.1.0-rc1)). The `releases/latest/download/...` links below ignore pre-releases and start working with the first stable release. Until then replace `latest/download` by `download/v0.1.0-rc1` in the commands, or build from source (see the end of this section).
+### Quick install
+
+Linux, macOS and FreeBSD:
+
+```
+curl -fsSL https://raw.githubusercontent.com/pixelpolishers/kiln-cli/master/scripts/install.sh | sh
+```
+
+or with `wget`:
+
+```
+wget -qO- https://raw.githubusercontent.com/pixelpolishers/kiln-cli/master/scripts/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```
+irm https://raw.githubusercontent.com/pixelpolishers/kiln-cli/master/scripts/install.ps1 | iex
+```
+
+The script finds out which system and processor you have, downloads the matching archive of the newest release, checks its SHA-256 checksum, and installs `kiln`: into `~/.local/bin` (or `/usr/local/bin` when run as root) on Linux, macOS and FreeBSD, and into `%LOCALAPPDATA%\Programs\kiln` on Windows, which it adds to your user `PATH`. It changes nothing else. Set `KILN_VERSION` (for example `v0.1.0`) to install another version and `KILN_INSTALL_DIR` to choose the folder. It is short; read it before you run it: [install.sh](scripts/install.sh), [install.ps1](scripts/install.ps1).
+
+Each release also carries its own copy of the scripts with the checksums of that release written into them, which can only install that release:
+
+```
+curl -fsSL https://github.com/pixelpolishers/kiln-cli/releases/download/v0.1.0/install.sh | sh
+```
+
+(Available from the first release after `v0.1.0-rc1`.) The commands above use the copy in the repository, which takes the checksums from the release itself: that catches a damaged download, but not a release that was tampered with; see [Verify the download](#verify-the-download) for stronger checks.
+
+The rest of this section explains the same thing step by step, system by system.
+
+> **Only a release candidate exists so far** ([v0.1.0-rc1](https://github.com/pixelpolishers/kiln-cli/releases/tag/v0.1.0-rc1)). The `releases/latest/download/...` links below ignore pre-releases and start working with the first stable release. Until then replace `latest/download` by `download/v0.1.0-rc1` in the commands, or use the quick install above.
 
 ### What Kiln needs on your machine
 
@@ -95,13 +127,27 @@ Open a new terminal afterwards so the new `PATH` and programs are picked up. The
 
 Kiln is tested on Windows with MinGW-w64 GCC and Ninja. It asks CMake for Ninja (or MinGW Makefiles when Ninja is missing) so that the compiler it detected is the one that is used. Visual Studio (MSVC) should work when you run Kiln from a *Developer Command Prompt for VS*, which puts `cl` and Ninja on the `PATH`, but that combination is not tested yet. You can force a generator with the `CMAKE_GENERATOR` environment variable.
 
-### Check the download
+### FreeBSD
+
+```
+sudo pkg install git cmake gmake
+```
+
+The C++ compiler (Clang) is part of FreeBSD. Then use the quick install above, or download `kiln_freebsd_amd64.tar.gz` from a release (the first release after `v0.1.0-rc1` has it). The FreeBSD binary is built but has never been run: please report what you find.
+
+### Verify the download
 
 Every release lists a `SHA256SUMS` file. To verify an archive (Linux; on macOS use `shasum -a 256 -c`):
 
 ```
 curl -fsSLO https://github.com/pixelpolishers/kiln-cli/releases/latest/download/SHA256SUMS
 grep kiln_linux_amd64.tar.gz SHA256SUMS | sha256sum -c
+```
+
+That shows the file is complete and equal to what the release lists. To check that the file was built from this repository by its release workflow, and not uploaded by somebody else, verify its build attestation with the [GitHub CLI](https://cli.github.com/) (releases after `v0.1.0-rc1` have one):
+
+```
+gh attestation verify kiln_linux_amd64.tar.gz --repo pixelpolishers/kiln-cli
 ```
 
 ### Check that it works

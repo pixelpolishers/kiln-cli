@@ -86,3 +86,34 @@ jobs:
         run: cd kiln-cli && go vet ./...
       - name: Test
         run: cd kiln-cli && go test -count=1 ./...
+
+  installer:
+    # The install scripts download the newest published release, check its checksum and
+    # install it. This tests the scripts of the repository against real releases.
+    name: install script (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell script
+        if: runner.os != 'Windows'
+        run: |
+          KILN_INSTALL_DIR="$RUNNER_TEMP/kiln-bin" sh scripts/install.sh
+          "$RUNNER_TEMP/kiln-bin/kiln" version
+      - name: PowerShell script
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $env:KILN_INSTALL_DIR = "$env:RUNNER_TEMP\kiln-bin"
+          & .\scripts\install.ps1
+          & "$env:KILN_INSTALL_DIR\kiln.exe" version
+      - name: Windows PowerShell 5.1 (the one that ships with Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $env:KILN_INSTALL_DIR = "$env:RUNNER_TEMP\kiln-bin51"
+          & .\scripts\install.ps1
+          & "$env:KILN_INSTALL_DIR\kiln.exe" version
