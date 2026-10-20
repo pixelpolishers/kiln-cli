@@ -24,7 +24,7 @@ target_link_libraries(app PRIVATE gabime::spdlog nlohmann::nlohmann_json)
 
 Kiln is one executable, `kiln`, with nothing else to install. It uses tools that are probably on your machine already (git, CMake, a C++ compiler); the steps for each system below start with those.
 
-> **No release has been published yet.** The download links below start working with the first release; until then build from source (see the end of this section).
+> **Only a release candidate exists so far** ([v0.1.0-rc1](https://github.com/pixelpolishers/kiln-cli/releases/tag/v0.1.0-rc1)). The `releases/latest/download/...` links below ignore pre-releases and start working with the first stable release. Until then replace `latest/download` by `download/v0.1.0-rc1` in the commands, or build from source (see the end of this section).
 
 ### What Kiln needs on your machine
 
