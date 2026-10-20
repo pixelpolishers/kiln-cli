@@ -87,14 +87,14 @@ main() {
   # ---- which version? ----
   version="${KILN_VERSION:-$baked_version}"
   if [ -z "$version" ]; then
-    # the newest stable release; the "latest" release of GitHub ignores pre-releases,
-    # so fall back to the newest release of any kind while there is no stable one
-    json="$(fetch "https://api.github.com/repos/$repo/releases/latest" 2>/dev/null || true)"
-    version="$(printf '%s' "$json" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n 1)"
+    # The newest stable release, from the releases feed (no API, so no rate limit for
+    # people who share an address). The "latest" release of GitHub ignores
+    # pre-releases, so while there is no stable release fall back to the newest of any kind.
+    tags="$(fetch "https://github.com/$repo/releases.atom" 2>/dev/null | sed -n 's|.*/releases/tag/\([^"<]*\)".*|\1|p' || true)"
+    [ -n "$tags" ] || fail "cannot find a release of $repo (no network, or none published yet)"
+    version="$(printf '%s\n' "$tags" | grep -v -e '-' | head -n 1 || true)"
     if [ -z "$version" ]; then
-      json="$(fetch "https://api.github.com/repos/$repo/releases?per_page=1" 2>/dev/null || true)"
-      version="$(printf '%s' "$json" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p' | head -n 1)"
-      [ -n "$version" ] || fail "cannot find a release of $repo (no network, or none published yet)"
+      version="$(printf '%s\n' "$tags" | head -n 1)"
       say "There is no stable release yet; installing the newest pre-release, $version."
     fi
   fi

@@ -43,12 +43,16 @@ function Install-Kiln {
     $version = $env:KILN_VERSION
     if (-not $version) { $version = $bakedVersion }
     if (-not $version) {
-        # the newest stable release; the "latest" release of GitHub ignores pre-releases,
-        # so fall back to the newest release of any kind while there is no stable one
-        try { $version = (Invoke-RestMethod "https://api.github.com/repos/$repo/releases/latest").tag_name } catch { $version = '' }
+        # The newest stable release, from the releases feed (no API, so no rate limit for
+        # people who share an address). The "latest" release of GitHub ignores
+        # pre-releases, so while there is no stable release fall back to the newest of any kind.
+        try { $feed = (Invoke-WebRequest "https://github.com/$repo/releases.atom" -UseBasicParsing).Content } catch { $feed = '' }
+        if ($feed -is [byte[]]) { $feed = [Text.Encoding]::UTF8.GetString($feed) }
+        $tags = @([regex]::Matches([string]$feed, '/releases/tag/([^"<]+)"') | ForEach-Object { $_.Groups[1].Value })
+        if ($tags.Count -eq 0) { Fail "cannot find a release of $repo (no network, or none published yet)" }
+        $version = $tags | Where-Object { $_ -notlike '*-*' } | Select-Object -First 1
         if (-not $version) {
-            try { $version = (Invoke-RestMethod "https://api.github.com/repos/$repo/releases?per_page=1")[0].tag_name } catch { $version = '' }
-            if (-not $version) { Fail "cannot find a release of $repo (no network, or none published yet)" }
+            $version = $tags[0]
             Write-Host "There is no stable release yet; installing the newest pre-release, $version."
         }
     }
