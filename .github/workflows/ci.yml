@@ -32,6 +32,16 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Use the D drive for temporary files and Go's caches
+        # The C drive of the Windows runners is slow for the many small files that
+        # builds create; the D drive is much faster.
+        if: runner.os == 'Windows'
+        run: |
+          mkdir -p /d/tmp /d/gocache /d/gomod
+          echo 'TEMP=D:\tmp' >> "$GITHUB_ENV"
+          echo 'TMP=D:\tmp' >> "$GITHUB_ENV"
+          echo 'GOCACHE=D:\gocache' >> "$GITHUB_ENV"
+          echo 'GOMODCACHE=D:\gomod' >> "$GITHUB_ENV"
       - name: Install git and the build tools the tests need
         if: matrix.container
         run: dnf install -y git gcc-c++ cmake make tcl perl-core which
@@ -49,7 +59,22 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: kiln-cli/go.mod
-          cache: false
+          cache: false   # the step below caches the build cache too, which setup-go would not update
+      - name: Find Go's caches
+        id: gocache
+        run: |
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+          echo "mod=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+      - name: Restore Go's caches
+        # Go's build cache is keyed by content, so an old cache is always safe to
+        # start from: restore the newest one for this system, save a new one at the end.
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.gocache.outputs.build }}
+            ${{ steps.gocache.outputs.mod }}
+          key: go-${{ matrix.name }}-${{ github.sha }}
+          restore-keys: go-${{ matrix.name }}-
       - name: Join the modules in a workspace
         run: go work init ./kiln-cli ./kiln-core ./kiln-schema
       - name: Vet
