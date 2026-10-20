@@ -157,6 +157,15 @@ That shows the file is complete and equal to what the release lists. To check th
 gh attestation verify kiln_linux_amd64.tar.gz --repo pixelpolishers/kiln-cli
 ```
 
+### Update
+
+```sh
+kiln self-update           # download the newest release, check its checksum, replace kiln
+kiln self-update --check   # only report; exit status 11 when a newer version exists
+```
+
+Pre-releases are skipped unless the installed `kiln` is one itself or you pass `--pre`; `--version v0.1.0` installs a specific version, older ones too. If `kiln` is installed where you cannot write (for example `/usr/local/bin`), run the command with the permissions needed there. A `kiln` you built yourself calls itself `dev` and only updates with `--force`. (`kiln update` is something else: it updates the dependencies of a project.)
+
 ### Check that it works
 
 ```sh
@@ -203,6 +212,7 @@ On Windows PowerShell: `$env:KILN_REGISTRY = "http://localhost:8080"`.
 | `audit`, `licenses` | check the locked packages for known vulnerabilities and for a license policy |
 | `cache ls`, `cache clear` | list or delete the shared cache of builds and sources |
 | `settings` | show the detected build settings |
+| `self-update` | replace `kiln` by the newest release (`--check` only reports; exit status 11 means a newer version exists) |
 | `package`, `publish`, `finalize` | build a local binary repository |
 
 `kiln <command> -h` lists the options of a command.

@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 - Prebuilt binaries for Windows on ARM (arm64) and FreeBSD (amd64).
 - Tests on Linux and Windows machines with ARM processors for every change.
 - Install scripts, `scripts/install.sh` (Linux, macOS, FreeBSD) and `scripts/install.ps1` (Windows): they pick the right archive for the system, check its SHA-256 checksum and install `kiln`. Every release carries copies with its own checksums written into them.
+- `kiln self-update` replaces the executable by the newest release after checking its SHA-256 checksum; `--check` only reports (exit status 11 when a newer version exists), `--pre` includes release candidates, `--version` installs a specific version.
 - Build attestations for the files of a release, which `gh attestation verify` can check.
 
 ### Changed

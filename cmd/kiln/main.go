@@ -56,6 +56,7 @@ Commands:
   publish                 add packed archives to a local repository
   finalize                write the asset manifest of a local repository
   version                 print the kiln version
+  self-update             replace this kiln by the newest release
 
 Run 'kiln <command> -h' for the options of a command.
 
@@ -118,6 +119,8 @@ func run(args []string, io IO) int {
 		return cmdPublish(rest, io)
 	case "finalize":
 		return cmdFinalize(rest, io)
+	case "self-update":
+		return cmdSelfUpdate(rest, io)
 	case "version", "--version":
 		fmt.Fprintln(io.Out, "kiln", version)
 		return exitOK
