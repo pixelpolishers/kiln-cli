@@ -99,6 +99,12 @@ func TestInstallBuildsFromSource(t *testing.T) {
 	needTools(t, "git", "cmake", "g++")
 	t.Setenv("KILN_CACHE_DIR", filepath.Join(t.TempDir(), "cache"))
 	t.Setenv("KILN_ALLOW_FILE_SOURCES", "1")
+	if runtime.GOOS == "windows" {
+		// the test links with g++, so the libraries must come from g++ too (the
+		// runner also has clang, whose Windows default is the MSVC ABI)
+		t.Setenv("CXX", "g++")
+		t.Setenv("CC", "gcc")
+	}
 
 	tinyURL, tinyCommit := gitProject(t, "v1.0.0", tinyFiles)
 	appURL, appCommit := gitProject(t, "v1.0.0", appFiles)
