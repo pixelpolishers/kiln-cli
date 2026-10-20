@@ -1,9 +1,6 @@
 # Continuous integration: vet and test the CLI on Ubuntu (Debian family),
 # Fedora (Red Hat family), macOS and Windows.
 #
-# The macOS and Windows jobs have never run: expect to fix things on the first
-# runs. That is the point; it is how Windows and macOS support gets tested.
-#
 # kiln-core and kiln-schema are public but not tagged with versions yet, so the
 # jobs check them out next to the CLI and join the three in a Go workspace.
 # Replace this setup by a plain `go test ./...` once the modules are tagged.
@@ -15,47 +12,28 @@ on:
 
 jobs:
   test:
-    name: tests (${{ matrix.os }})
+    name: tests (${{ matrix.name }})
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+        include:
+          - name: ubuntu
+            runner: ubuntu-latest
+          - name: fedora
+            runner: ubuntu-latest
+            container: fedora:latest   # the Red Hat family; the author develops on Fedora
+          - name: macos
+            runner: macos-latest
+          - name: windows
+            runner: windows-latest
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container }}
+    defaults:
+      run:
+        shell: bash
     steps:
-      - uses: actions/checkout@v4
-        with:
-          path: kiln-cli
-      - uses: actions/checkout@v4
-        with:
-          repository: pixelpolishers/kiln-core
-          path: kiln-core
-      - uses: actions/checkout@v4
-        with:
-          repository: pixelpolishers/kiln-schema
-          path: kiln-schema
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: kiln-cli/go.mod
-          cache: false
-      - name: Join the modules in a workspace
-        shell: bash
-        run: go work init ./kiln-cli ./kiln-core ./kiln-schema
-      - name: Vet
-        shell: bash
-        run: cd kiln-cli && go vet ./...
-      - name: Test
-        shell: bash
-        run: cd kiln-cli && go test ./...
-
-  test-fedora:
-    # The ubuntu runner covers the Debian family; this covers the Red Hat family
-    # (Fedora is also what the author develops on). It runs in a Fedora container
-    # and installs the tools the tests that compile code need.
-    name: tests (fedora)
-    runs-on: ubuntu-latest
-    container: fedora:latest
-    steps:
-      - name: Install git and the build tools
+      - name: Install git and the build tools the tests need
+        if: matrix.container
         run: dnf install -y git gcc-c++ cmake make tcl perl-core which
       - uses: actions/checkout@v4
         with:
