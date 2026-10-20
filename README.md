@@ -167,8 +167,17 @@ On Windows PowerShell: `$env:KILN_REGISTRY = "http://localhost:8080"`.
 
 ## Develop
 
+Build `bin/kiln` from the `kiln-cli` directory (this needs `kiln-core` and `kiln-schema` next to it and a `go.work` file in the parent directory, as in [Build from source](#build-from-source)):
+
 ```
 cd kiln-cli
+go build -o bin/kiln ./cmd/kiln      # bin/kiln.exe on Windows
+./bin/kiln version
+```
+
+Run the checks:
+
+```
 go vet ./...
 go test ./...
 ```
