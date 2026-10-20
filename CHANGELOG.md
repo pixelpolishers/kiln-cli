@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 ### Added
 
 - This changelog, and a copy of it in every release archive.
+- Prebuilt binaries for Windows on ARM (arm64) and FreeBSD (amd64).
+- Tests on Linux and Windows machines with ARM processors for every change.
 
 ### Changed
 

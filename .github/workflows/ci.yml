@@ -1,5 +1,5 @@
 # Continuous integration: vet and test the CLI on Ubuntu (Debian family),
-# Fedora (Red Hat family), macOS and Windows.
+# Fedora (Red Hat family), macOS and Windows, and on ARM for Linux and Windows.
 #
 # kiln-core and kiln-schema are public but not tagged with versions yet, so the
 # jobs check them out next to the CLI and join the three in a Go workspace.
@@ -22,10 +22,14 @@ jobs:
           - name: fedora
             runner: ubuntu-latest
             container: fedora:latest   # the Red Hat family; the author develops on Fedora
+          - name: ubuntu-arm
+            runner: ubuntu-24.04-arm
           - name: macos
             runner: macos-latest
           - name: windows
             runner: windows-latest
+          - name: windows-arm
+            runner: windows-11-arm
     runs-on: ${{ matrix.runner }}
     container: ${{ matrix.container }}
     defaults:
@@ -37,6 +41,7 @@ jobs:
         # builds create; the D drive is much faster.
         if: runner.os == 'Windows'
         run: |
+          if [ ! -d /d ]; then echo "no D drive on this runner, using C"; exit 0; fi
           mkdir -p /d/tmp /d/gocache /d/gomod
           echo 'TEMP=D:\tmp' >> "$GITHUB_ENV"
           echo 'TMP=D:\tmp' >> "$GITHUB_ENV"
