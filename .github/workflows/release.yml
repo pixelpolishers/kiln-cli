@@ -58,7 +58,7 @@ jobs:
       - name: Join the modules in a workspace
         run: go work init ./kiln-cli ./kiln-core ./kiln-schema
       - name: Test before releasing
-        run: cd kiln-cli && go test ./...
+        run: cd kiln-cli && go test -count=1 ./...
       - name: Build the archives
         run: |
           set -euo pipefail
