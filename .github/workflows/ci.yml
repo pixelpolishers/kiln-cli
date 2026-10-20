@@ -4,11 +4,9 @@
 # The macOS and Windows jobs have never run: expect to fix things on the first
 # runs. That is the point; it is how Windows and macOS support gets tested.
 #
-# kiln-core and kiln-schema are not published as tagged modules yet, so the job
-# checks them out next to the CLI and joins the three in a Go workspace. The
-# repositories are private: add a token that can read them as the repository
-# secret KILN_REPO_TOKEN. Replace this setup by a plain `go test ./...` once the
-# modules are tagged.
+# kiln-core and kiln-schema are public but not tagged with versions yet, so the
+# jobs check them out next to the CLI and join the three in a Go workspace.
+# Replace this setup by a plain `go test ./...` once the modules are tagged.
 name: CI
 
 on:
@@ -31,12 +29,10 @@ jobs:
         with:
           repository: pixelpolishers/kiln-core
           path: kiln-core
-          token: ${{ secrets.KILN_REPO_TOKEN }}
       - uses: actions/checkout@v4
         with:
           repository: pixelpolishers/kiln-schema
           path: kiln-schema
-          token: ${{ secrets.KILN_REPO_TOKEN }}
       - uses: actions/setup-go@v5
         with:
           go-version-file: kiln-cli/go.mod
@@ -68,12 +64,10 @@ jobs:
         with:
           repository: pixelpolishers/kiln-core
           path: kiln-core
-          token: ${{ secrets.KILN_REPO_TOKEN }}
       - uses: actions/checkout@v4
         with:
           repository: pixelpolishers/kiln-schema
           path: kiln-schema
-          token: ${{ secrets.KILN_REPO_TOKEN }}
       - uses: actions/setup-go@v5
         with:
           go-version-file: kiln-cli/go.mod
