@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 
 ## [Unreleased]
 
+## [0.1.0-rc2] - 2026-10-21
+
+The second release candidate: install and update scripts, more systems, and a way to update `kiln` itself.
+
 ### Added
 
 - This changelog, and a copy of it in every release archive.
@@ -36,5 +40,6 @@ The first release candidate: a working prototype. Libraries are built from their
 - Prebuilt `kiln` binaries for Linux (amd64, arm64), macOS (arm64, amd64) and Windows (amd64), with a `SHA256SUMS` file.
 - Tests on Ubuntu, Fedora, macOS and Windows for every change.
 
-[Unreleased]: https://github.com/pixelpolishers/kiln-cli/compare/v0.1.0-rc1...HEAD
+[Unreleased]: https://github.com/pixelpolishers/kiln-cli/compare/v0.1.0-rc2...HEAD
+[0.1.0-rc2]: https://github.com/pixelpolishers/kiln-cli/compare/v0.1.0-rc1...v0.1.0-rc2
 [0.1.0-rc1]: https://github.com/pixelpolishers/kiln-cli/releases/tag/v0.1.0-rc1

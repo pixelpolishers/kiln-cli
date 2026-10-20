@@ -59,7 +59,7 @@ Each release also carries its own copy of the scripts with the checksums of that
 curl -fsSL https://github.com/pixelpolishers/kiln-cli/releases/download/v0.1.0/install.sh | sh
 ```
 
-(Available from the first release after `v0.1.0-rc1`.) The commands above use the copy in the repository, which takes the checksums from the release itself: that catches a damaged download, but not a release that was tampered with; see [Verify the download](#verify-the-download) for stronger checks.
+(Available from `v0.1.0-rc2`.) The commands above use the copy in the repository, which takes the checksums from the release itself: that catches a damaged download, but not a release that was tampered with; see [Verify the download](#verify-the-download) for stronger checks.
 
 The rest of this section explains the same thing step by step, system by system.
 
@@ -140,7 +140,7 @@ Kiln is tested on Windows with MinGW-w64 GCC and Ninja. It asks CMake for Ninja 
 sudo pkg install git cmake gmake
 ```
 
-The C++ compiler (Clang) is part of FreeBSD. Then use the quick install above, or download `kiln_freebsd_amd64.tar.gz` from a release (the first release after `v0.1.0-rc1` has it). The FreeBSD binary is built but has never been run: please report what you find.
+The C++ compiler (Clang) is part of FreeBSD. Then use the quick install above, or download `kiln_freebsd_amd64.tar.gz` from a release (`v0.1.0-rc2` and later have it). The FreeBSD binary is built but has never been run: please report what you find.
 
 ### Verify the download
 
@@ -151,7 +151,7 @@ curl -fsSLO https://github.com/pixelpolishers/kiln-cli/releases/latest/download/
 grep kiln_linux_amd64.tar.gz SHA256SUMS | sha256sum -c
 ```
 
-That shows the file is complete and equal to what the release lists. To check that the file was built from this repository by its release workflow, and not uploaded by somebody else, verify its build attestation with the [GitHub CLI](https://cli.github.com/) (releases after `v0.1.0-rc1` have one):
+That shows the file is complete and equal to what the release lists. To check that the file was built from this repository by its release workflow, and not uploaded by somebody else, verify its build attestation with the [GitHub CLI](https://cli.github.com/) (`v0.1.0-rc2` and later have one):
 
 ```sh
 gh attestation verify kiln_linux_amd64.tar.gz --repo pixelpolishers/kiln-cli
