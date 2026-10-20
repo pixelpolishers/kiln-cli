@@ -222,6 +222,27 @@ func ResolveOption(o manifest.OptionValue, ctx map[string]string) (any, bool) {
 	return nil, false
 }
 
+// Generator picks the CMake generator to ask for, or "" to leave the choice to
+// CMake. On Windows CMake prefers the Visual Studio generators, which ignore
+// the compiler that was detected (a MinGW gcc would be silently replaced by
+// MSVC and produce .lib files). Ninja works with every compiler (for MSVC from
+// a Developer Command Prompt); without Ninja, gcc and clang use MinGW Makefiles.
+// A generator chosen by the user through CMAKE_GENERATOR is respected.
+func Generator(settings map[string]any, fromEnv string) string {
+	if fromEnv != "" || runtime.GOOS != "windows" { // builds always run on the host
+		return ""
+	}
+	if _, err := exec.LookPath("ninja"); err == nil {
+		return "Ninja"
+	}
+	if c, _ := settings["compiler"].(map[string]any); c != nil {
+		if name, _ := c["name"].(string); name == "gcc" {
+			return "MinGW Makefiles"
+		}
+	}
+	return ""
+}
+
 func (r *runner) cmake(ctx context.Context) error {
 	if _, err := exec.LookPath("cmake"); err != nil {
 		return fmt.Errorf("%s needs cmake to build, but it was not found on PATH", r.p.Package)
@@ -229,6 +250,9 @@ func (r *runner) cmake(ctx context.Context) error {
 	args, err := CMakeConfigureArgs(r.p)
 	if err != nil {
 		return err
+	}
+	if gen := Generator(r.p.Settings, os.Getenv("CMAKE_GENERATOR")); gen != "" {
+		args = append([]string{"-G", gen}, args...)
 	}
 	if err := r.exec(ctx, "cmake configure", r.p.SourceDir, r.env(), "cmake", args...); err != nil {
 		return err

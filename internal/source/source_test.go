@@ -212,12 +212,12 @@ func TestFetchChecksOutSubmodulesOnlyWhenAsked(t *testing.T) {
 	}
 	run(sub, "add", ".")
 	run(sub, "commit", "--quiet", "-m", "sub")
-	run(main, "submodule", "--quiet", "add", "file://"+sub, "3rdparty/sub")
+	run(main, "submodule", "--quiet", "add", fileURL(sub), "3rdparty/sub")
 	run(main, "commit", "--quiet", "-m", "main")
 	run(main, "tag", "v1.0.0")
 
 	without := filepath.Join(t.TempDir(), "src")
-	if _, err := (Git{AllowFile: true}).Fetch(context.Background(), Request{Package: "a/b", Version: "1.0.0", Repository: "file://" + main, Tags: []string{"v1.0.0"}}, without); err != nil {
+	if _, err := (Git{AllowFile: true}).Fetch(context.Background(), Request{Package: "a/b", Version: "1.0.0", Repository: fileURL(main), Tags: []string{"v1.0.0"}}, without); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat(filepath.Join(without, "3rdparty", "sub", "lib.txt")); err == nil {
@@ -225,7 +225,7 @@ func TestFetchChecksOutSubmodulesOnlyWhenAsked(t *testing.T) {
 	}
 
 	with := filepath.Join(t.TempDir(), "src")
-	if _, err := (Git{AllowFile: true}).Fetch(context.Background(), Request{Package: "a/b", Version: "1.0.0", Repository: "file://" + main, Tags: []string{"v1.0.0"}, Submodules: true}, with); err != nil {
+	if _, err := (Git{AllowFile: true}).Fetch(context.Background(), Request{Package: "a/b", Version: "1.0.0", Repository: fileURL(main), Tags: []string{"v1.0.0"}, Submodules: true}, with); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat(filepath.Join(with, "3rdparty", "sub", "lib.txt")); err != nil {

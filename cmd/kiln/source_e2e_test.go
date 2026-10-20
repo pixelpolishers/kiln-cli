@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -148,12 +149,21 @@ include(vendor/kiln/kiln.cmake)
 add_executable(demo main.cpp)
 target_link_libraries(demo PRIVATE v::app)
 `)
-	for _, step := range [][]string{{"-S", project, "-B", filepath.Join(project, "build")}, {"--build", filepath.Join(project, "build")}} {
+	configure := []string{"-S", project, "-B", filepath.Join(project, "build")}
+	if runtime.GOOS == "windows" {
+		// the libraries were built with the detected gcc: link with it, not with MSVC
+		configure = append(configure, "-G", "Ninja", "-DCMAKE_CXX_COMPILER=g++")
+	}
+	for _, step := range [][]string{configure, {"--build", filepath.Join(project, "build")}} {
 		if o, err := exec.Command("cmake", step...).CombinedOutput(); err != nil {
 			t.Fatalf("cmake %v: %v\n%s", step, err, o)
 		}
 	}
-	o, err := exec.Command(filepath.Join(project, "build", "demo")).Output()
+	demo := filepath.Join(project, "build", "demo")
+	if runtime.GOOS == "windows" {
+		demo += ".exe"
+	}
+	o, err := exec.Command(demo).Output()
 	if err != nil || strings.TrimSpace(string(o)) != "107" {
 		t.Errorf("program output %q, %v; want 107 (7 from tiny's option + 100 from app)", o, err)
 	}

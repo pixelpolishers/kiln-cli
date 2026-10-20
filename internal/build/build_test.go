@@ -89,7 +89,7 @@ func TestCMakeConfigureArgs(t *testing.T) {
 func TestSourceDirOption(t *testing.T) {
 	p := Params{Build: manifest.Build{System: "cmake", SourceDir: "cmake"}, Settings: baseSettings, SourceDir: "/src", Prefix: "/p", WorkDir: "/w"}
 	args, _ := CMakeConfigureArgs(p)
-	if args[1] != "/src/cmake" {
+	if args[1] != filepath.Join("/src", "cmake") {
 		t.Errorf("source-dir ignored: %v", args[:2])
 	}
 }
@@ -268,5 +268,21 @@ install(FILES include/tiny.h DESTINATION include)
 	}
 	if out, err := exec.Command(exe).Output(); err != nil || strings.TrimSpace(string(out)) != "7" {
 		t.Errorf("the option value must reach the compiled library: %q %v", out, err)
+	}
+}
+
+func TestGeneratorIsOnlyChosenOnWindows(t *testing.T) {
+	if got := Generator(baseSettings, "Unix Makefiles"); got != "" {
+		t.Errorf("a generator from CMAKE_GENERATOR must be respected, got %q", got)
+	}
+	got := Generator(baseSettings, "")
+	if runtime.GOOS != "windows" {
+		if got != "" {
+			t.Errorf("on %s CMake's own choice is fine, got %q", runtime.GOOS, got)
+		}
+		return
+	}
+	if got != "Ninja" && got != "MinGW Makefiles" && got != "" {
+		t.Errorf("unexpected generator %q", got)
 	}
 }
