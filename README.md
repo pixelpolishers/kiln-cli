@@ -2,8 +2,15 @@
 
 The `kiln` command line tool. Kiln is a package manager for C++: list your dependencies in a JSON file, run one command, and everybody on the project gets exactly the same libraries, without committing them.
 
+A project's `kiln.json`:
+
 ```json
-{ "require": { "gabime/spdlog": "^1.14", "nlohmann/json": "^3.12" } }
+{
+  "require": {
+    "gabime/spdlog": "^1.14",
+    "nlohmann/json": "^3.12"
+  }
+}
 ```
 
 ```
