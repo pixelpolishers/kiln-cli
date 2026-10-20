@@ -13,7 +13,7 @@ A project's `kiln.json`:
 }
 ```
 
-```
+```console
 $ kiln require gabime/spdlog nlohmann/json   # writes kiln.json, picks versions, builds, writes the CMake integration
 $ git add kiln.json kiln.lock                # everybody who clones this gets the same libraries
 ```
@@ -35,19 +35,19 @@ Kiln is one executable, `kiln`, with nothing else to install. It uses tools that
 
 Linux, macOS and FreeBSD:
 
-```
+```sh
 curl -fsSL https://raw.githubusercontent.com/pixelpolishers/kiln-cli/master/scripts/install.sh | sh
 ```
 
 or with `wget`:
 
-```
+```sh
 wget -qO- https://raw.githubusercontent.com/pixelpolishers/kiln-cli/master/scripts/install.sh | sh
 ```
 
 Windows (PowerShell):
 
-```
+```powershell
 irm https://raw.githubusercontent.com/pixelpolishers/kiln-cli/master/scripts/install.ps1 | iex
 ```
 
@@ -55,7 +55,7 @@ The script finds out which system and processor you have, downloads the matching
 
 Each release also carries its own copy of the scripts with the checksums of that release written into them, which can only install that release:
 
-```
+```sh
 curl -fsSL https://github.com/pixelpolishers/kiln-cli/releases/download/v0.1.0/install.sh | sh
 ```
 
@@ -77,19 +77,19 @@ Some libraries need more (OpenSSL needs Perl, SQLite needs Tcl, and so on). `kil
 
 Fedora, RHEL and other Red Hat family systems:
 
-```
+```sh
 sudo dnf install git cmake gcc-c++ make
 ```
 
 Debian, Ubuntu and other Debian family systems:
 
-```
+```sh
 sudo apt install git cmake g++ make
 ```
 
 Then download Kiln (use `arm64` instead of `amd64` on ARM machines):
 
-```
+```sh
 curl -fsSLO https://github.com/pixelpolishers/kiln-cli/releases/latest/download/kiln_linux_amd64.tar.gz
 tar -xzf kiln_linux_amd64.tar.gz
 sudo install -m 755 kiln /usr/local/bin/kiln
@@ -97,14 +97,14 @@ sudo install -m 755 kiln /usr/local/bin/kiln
 
 ### macOS
 
-```
+```sh
 xcode-select --install          # Apple Clang and make
 brew install cmake git
 ```
 
 Then download Kiln (`arm64` for Apple silicon, `amd64` for Intel Macs):
 
-```
+```sh
 curl -fsSLO https://github.com/pixelpolishers/kiln-cli/releases/latest/download/kiln_darwin_arm64.tar.gz
 tar -xzf kiln_darwin_arm64.tar.gz
 sudo install -m 755 kiln /usr/local/bin/kiln
@@ -116,14 +116,14 @@ The binary is not signed or notarized yet. A file downloaded with `curl` runs wi
 
 In PowerShell, install the tools:
 
-```
+```powershell
 winget install Git.Git Kitware.CMake Ninja-build.Ninja
 winget install BrechtSanders.WinLibs.POSIX.UCRT     # MinGW-w64 GCC
 ```
 
 Then download Kiln, put it in a folder and add the folder to your `PATH`:
 
-```
+```powershell
 $dir = "$env:LOCALAPPDATA\Programs\kiln"
 Invoke-WebRequest https://github.com/pixelpolishers/kiln-cli/releases/latest/download/kiln_windows_amd64.zip -OutFile kiln.zip
 Expand-Archive kiln.zip -DestinationPath $dir -Force
@@ -136,7 +136,7 @@ Kiln is tested on Windows with MinGW-w64 GCC and Ninja. It asks CMake for Ninja 
 
 ### FreeBSD
 
-```
+```sh
 sudo pkg install git cmake gmake
 ```
 
@@ -146,20 +146,20 @@ The C++ compiler (Clang) is part of FreeBSD. Then use the quick install above, o
 
 Every release lists a `SHA256SUMS` file. To verify an archive (Linux; on macOS use `shasum -a 256 -c`):
 
-```
+```sh
 curl -fsSLO https://github.com/pixelpolishers/kiln-cli/releases/latest/download/SHA256SUMS
 grep kiln_linux_amd64.tar.gz SHA256SUMS | sha256sum -c
 ```
 
 That shows the file is complete and equal to what the release lists. To check that the file was built from this repository by its release workflow, and not uploaded by somebody else, verify its build attestation with the [GitHub CLI](https://cli.github.com/) (releases after `v0.1.0-rc1` have one):
 
-```
+```sh
 gh attestation verify kiln_linux_amd64.tar.gz --repo pixelpolishers/kiln-cli
 ```
 
 ### Check that it works
 
-```
+```sh
 kiln version
 kiln settings        # the build settings Kiln detected: operating system, compiler, ...
 ```
@@ -170,7 +170,7 @@ kiln settings        # the build settings Kiln detected: operating system, compi
 
 You need **Go 1.26 or newer** (Fedora: `sudo dnf install golang`; macOS: `brew install go`; Windows: `winget install GoLang.Go`; Debian and Ubuntu ship an older Go, so install one from <https://go.dev/dl/>). The CLI shares code with two other repositories, [kiln-core](https://github.com/pixelpolishers/kiln-core) and [kiln-schema](https://github.com/pixelpolishers/kiln-schema), so clone all three next to each other and join them in a Go workspace:
 
-```
+```sh
 mkdir kiln && cd kiln
 git clone https://github.com/pixelpolishers/kiln-cli
 git clone https://github.com/pixelpolishers/kiln-core
@@ -185,7 +185,7 @@ On Windows use `-o kiln.exe`. Move the result to a directory on your `PATH`.
 
 `kiln search`, `kiln info` and `kiln require` ask a registry which packages and versions exist. The registry is the [kiln-website](https://github.com/pixelpolishers/kiln-website) service. Point Kiln at one with:
 
-```
+```sh
 export KILN_REGISTRY=http://localhost:8080        # the default
 ```
 
@@ -222,7 +222,7 @@ On Windows PowerShell: `$env:KILN_REGISTRY = "http://localhost:8080"`.
 
 Build `bin/kiln` from the `kiln-cli` directory (this needs `kiln-core` and `kiln-schema` next to it and a `go.work` file in the parent directory, as in [Build from source](#build-from-source)):
 
-```
+```sh
 cd kiln-cli
 go build -o bin/kiln ./cmd/kiln      # bin/kiln.exe on Windows
 ./bin/kiln version
@@ -230,7 +230,7 @@ go build -o bin/kiln ./cmd/kiln      # bin/kiln.exe on Windows
 
 Run the checks:
 
-```
+```sh
 go vet ./...
 go test ./...
 ```
