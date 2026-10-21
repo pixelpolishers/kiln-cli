@@ -15,7 +15,7 @@ import (
 	"github.com/pixelpolishers/kiln-core/api"
 )
 
-const DefaultRegistry = "http://localhost:8080"
+const DefaultRegistry = "https://kiln.pixelpolishers.com"
 
 type Client struct {
 	Base string

@@ -195,10 +195,10 @@ On Windows use `-o kiln.exe`. Move the result to a directory on your `PATH`.
 `kiln search`, `kiln info` and `kiln require` ask a registry which packages and versions exist. The registry is the [kiln-website](https://github.com/pixelpolishers/kiln-website) service. Point Kiln at one with:
 
 ```sh
-export KILN_REGISTRY=http://localhost:8080        # the default
+export KILN_REGISTRY=https://kiln.pixelpolishers.com  # the default
 ```
 
-On Windows PowerShell: `$env:KILN_REGISTRY = "http://localhost:8080"`.
+On Windows PowerShell: `$env:KILN_REGISTRY = "https://kiln.pixelpolishers.com"`.
 
 ## Commands
 
@@ -221,7 +221,7 @@ On Windows PowerShell: `$env:KILN_REGISTRY = "http://localhost:8080"`.
 
 | Variable | Meaning |
 |---|---|
-| `KILN_REGISTRY` | registry URL (default `http://localhost:8080`) |
+| `KILN_REGISTRY` | registry URL (default `https://kiln.pixelpolishers.com`) |
 | `KILN_CACHE_DIR` | where builds and sources are cached (default: the user cache directory) |
 | `KILN_LOCAL_REPO` | a local repository of prebuilt packages |
 | `KILN_NO_SOURCES` | set to `1` to not copy library sources into `vendor/` (same as `--no-sources`) |

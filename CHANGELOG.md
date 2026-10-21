@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.
 
 ## [Unreleased]
 
+### Changed
+
+- The default registry is now `https://kiln.pixelpolishers.com` instead of `http://localhost:8080`. Set `KILN_REGISTRY` or pass `--registry` to use another one.
+
 ## [0.1.0-rc2] - 2026-10-21
 
 The second release candidate: install and update scripts, more systems, and a way to update `kiln` itself.
